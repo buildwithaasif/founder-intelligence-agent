@@ -1,14 +1,15 @@
 import ollama
 from config import MODEL_NAME
+import json
 
 
 def recommend_startup(
     startup_idea: str,
     founder_profile: str,
-    competitors: str,
-    pain_points: str,
-    founder_fit: str,
-    opportunity_score: str,
+    competitors: list,
+    pain_points: list,
+    founder_fit: dict,
+    opportunity_score: dict,
 ):
     prompt = f"""
 You are an elite startup advisor.
@@ -33,39 +34,25 @@ Opportunity Score:
 
 Your task:
 
-Decide whether the founder should:
+Decide one final outcome:
+- BUILD
+- PIVOT
+- ABANDON
 
-1. Build this startup
-2. Pivot the startup
-3. Abandon the idea
+Return ONLY valid JSON (no markdown, no explanation).
 
-If building:
+Format exactly:
 
-- Recommend the exact startup angle
-- Explain why it is the best opportunity
-- Describe the first MVP
-- Describe ideal customers
-- Describe pricing strategy
-
-Return:
-
-# Recommendation
-
-## Decision
-
-## Best Startup Angle
-
-## Why This Wins
-
-## First MVP
-
-## Ideal Customers
-
-## Pricing
-
-## Biggest Risk
-
-## Next 30 Days
+{{
+  "decision": "BUILD/PIVOT/ABANDON",
+  "best_startup_angle": "clear idea direction",
+  "why_this_wins": ["reason1", "reason2"],
+  "first_mvp": "simple MVP description",
+  "ideal_customers": ["customer type 1", "customer type 2"],
+  "pricing_strategy": "pricing explanation",
+  "biggest_risk": "main risk",
+  "next_30_days": ["step1", "step2", "step3"]
+}}
 """
 
     response = ollama.chat(
@@ -78,4 +65,19 @@ Return:
         ],
     )
 
-    return response["message"]["content"]
+    content = response["message"]["content"]
+
+    try:
+        return json.loads(content)
+    except:
+        return {
+            "decision": "PIVOT",
+            "best_startup_angle": "",
+            "why_this_wins": [],
+            "first_mvp": "",
+            "ideal_customers": [],
+            "pricing_strategy": "",
+            "biggest_risk": "",
+            "next_30_days": [],
+            "raw": content,
+        }

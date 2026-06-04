@@ -1,73 +1,37 @@
-import ollama
-from config import MODEL_NAME
-
-
 def calculate_opportunity_score(
     startup_idea: str,
-    competitors: str,
-    pain_points: str,
+    competitors: list,
+    pain_points: list,
     founder_profile: str,
 ):
-    prompt = f"""
-You are a YC partner and startup investor.
+    competitor_count = len(competitors)
+    pain_count = len(pain_points)
 
-Startup Idea:
-{startup_idea}
+    # Simple rule-based scoring (no LLM needed here)
+    market_opportunity = min(100, pain_count * 10)
 
-Founder Profile:
-{founder_profile}
+    competition_score = max(0, 100 - competitor_count * 5)
 
-Competitors:
-{competitors}
+    founder_fit = 70  # fixed baseline for now (we will improve later)
 
-Pain Analysis:
-{pain_points}
+    timing = 80  # fixed baseline (we improve later in next steps)
 
-Score the startup from 0-100 on:
-
-1. Market Opportunity
-2. Founder Fit
-3. Competition
-4. Timing
-
-Rules:
-- Give each score from 0-100
-- Explain each score briefly
-- Calculate Overall Score
-
-Finally return one verdict:
-
-BUILD
-MAYBE
-AVOID
-
-Format:
-
-Market Opportunity: X/100
-Reason: ...
-
-Founder Fit: X/100
-Reason: ...
-
-Competition: X/100
-Reason: ...
-
-Timing: X/100
-Reason: ...
-
-Overall Score: X/100
-
-Verdict: BUILD/MAYBE/AVOID
-"""
-
-    response = ollama.chat(
-        model=MODEL_NAME,
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
+    overall_score = int(
+        (market_opportunity + competition_score + founder_fit + timing) / 4
     )
 
-    return response["message"]["content"]
+    if overall_score >= 75:
+        verdict = "BUILD"
+    elif overall_score >= 50:
+        verdict = "MAYBE"
+    else:
+        verdict = "AVOID"
+
+    return {
+        "market_opportunity": market_opportunity,
+        "founder_fit": founder_fit,
+        "competition": competition_score,
+        "timing": timing,
+        "overall_score": overall_score,
+        "verdict": verdict,
+    }

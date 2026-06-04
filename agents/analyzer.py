@@ -40,4 +40,8 @@ Search Results:
         ]
     )
 
-    return response["message"]["content"]
+    return [
+    line.strip()
+    for line in response["message"]["content"].split("\n")
+    if line.strip()
+]

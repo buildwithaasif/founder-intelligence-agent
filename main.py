@@ -14,6 +14,7 @@ from tools.report_writer import save_report
 
 from agents.analyzer import extract_competitors
 from agents.pain_analyzer import extract_pain_points
+from agents.final_report import generate_final_report
 
 
 def analyze_idea():
@@ -70,7 +71,14 @@ def analyze_idea():
     print("FOUNDER FIT ANALYSIS")
     print("=" * 60)
     print()
-    print(founder_fit)
+    print("Technical Fit:", founder_fit["technical_fit"])
+    print("Domain Fit:", founder_fit["domain_fit"])
+    print("Execution Speed:", founder_fit["execution_speed"])
+    print("Market Understanding:", founder_fit["market_understanding"])
+
+    print("\nKey Strengths:", founder_fit["key_strengths"])
+    print("Key Weaknesses:", founder_fit["key_weaknesses"])
+    print("\nSummary:", founder_fit["summary"])
     print()
 
     opportunity_score = calculate_opportunity_score(
@@ -84,7 +92,12 @@ def analyze_idea():
     print("OPPORTUNITY SCORE")
     print("=" * 60)
     print()
-    print(opportunity_score)
+    print("Market Opportunity:", opportunity_score["market_opportunity"])
+    print("Founder Fit:", opportunity_score["founder_fit"])
+    print("Competition:", opportunity_score["competition"])
+    print("Timing:", opportunity_score["timing"])
+    print("Overall Score:", opportunity_score["overall_score"])
+    print("Verdict:", opportunity_score["verdict"])
     print()
 
     print("=" * 60)
@@ -101,7 +114,26 @@ def analyze_idea():
         opportunity_score=opportunity_score,
     )
 
-    print(recommendation)
+    print("Decision:", recommendation["decision"])
+    print("Best Angle:", recommendation["best_startup_angle"])
+
+    print("\nWhy This Wins:")
+    for r in recommendation["why_this_wins"]:
+        print("-", r)
+
+    print("\nFirst MVP:", recommendation["first_mvp"])
+
+    print("\nIdeal Customers:")
+    for c in recommendation["ideal_customers"]:
+        print("-", c)
+
+    print("\nPricing Strategy:", recommendation["pricing_strategy"])
+
+    print("\nBiggest Risk:", recommendation["biggest_risk"])
+
+    print("\nNext 30 Days:")
+    for s in recommendation["next_30_days"]:
+        print("-", s)
     print()
 
     customer_analysis = customer_discovery(
@@ -114,7 +146,15 @@ def analyze_idea():
     print("=" * 60)
     print()
 
-    print(customer_analysis)
+    print("ICP:", customer_analysis["icp"])
+    print("Buyer Persona:", customer_analysis["buyer_persona"])
+    print("Biggest Pain:", customer_analysis["biggest_pain"])
+    print("Trigger Event:", customer_analysis["trigger_event"])
+
+    print("\nWhere They Hang Out:", customer_analysis["where_they_hang_out"])
+    print("First 100 Customers:", customer_analysis["first_100_customers"])
+    print("Pricing Expectation:", customer_analysis["pricing_expectation"])
+    print("Competitive Advantage:", customer_analysis["competitive_advantage"])
     print()
 
     print("=" * 60)
@@ -168,6 +208,14 @@ def main():
 
     if choice == "1":
         analyze_idea()
+        final_report = generate_final_report(
+            recommendation,
+            opportunity_score,
+            customer_analysis,
+            founder_fit,
+        )
+
+        print(final_report)
 
     elif choice == "2":
         generate_ideas()

@@ -1,11 +1,12 @@
 import ollama
 from config import MODEL_NAME
+import json
 
 
 def analyze_founder_fit(
     startup_idea: str,
-    competitors: str,
-    pain_points: str,
+    competitors: list,
+    pain_points: list,
     founder_profile: str,
 ):
     prompt = f"""
@@ -20,18 +21,24 @@ Startup Idea:
 Competitors:
 {competitors}
 
-Pain Analysis:
+Pain Points:
 {pain_points}
 
-Evaluate:
+Analyze the founder fit.
 
-1. Is this market crowded?
-2. Is there still opportunity?
-3. What founder advantages does THIS founder have?
-4. What skills is THIS founder missing?
-5. What would make THIS founder stand out?
+Return ONLY valid JSON (no explanation, no markdown).
 
-Return concise bullet points.
+Format exactly like this:
+
+{{
+  "technical_fit": 0-100,
+  "domain_fit": 0-100,
+  "execution_speed": 0-100,
+  "market_understanding": 0-100,
+  "key_strengths": ["..."],
+  "key_weaknesses": ["..."],
+  "summary": "short 2-3 line summary"
+}}
 """
 
     response = ollama.chat(
@@ -44,4 +51,18 @@ Return concise bullet points.
         ]
     )
 
-    return response["message"]["content"]
+    content = response["message"]["content"]
+
+    try:
+        return json.loads(content)
+    except:
+        return {
+            "technical_fit": 0,
+            "domain_fit": 0,
+            "execution_speed": 0,
+            "market_understanding": 0,
+            "key_strengths": [],
+            "key_weaknesses": [],
+            "summary": "Failed to parse model output",
+            "raw": content
+        }

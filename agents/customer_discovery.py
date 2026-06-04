@@ -1,5 +1,6 @@
 import ollama
 from config import MODEL_NAME
+import json
 
 
 def customer_discovery(
@@ -15,46 +16,42 @@ Startup Idea:
 Recommendation:
 {recommendation}
 
-Identify:
+Extract customer intelligence.
 
-1. Ideal Customer Profile (ICP)
-2. Buyer Persona
-3. Biggest Pain
-4. Trigger Event that makes them buy
-5. Where they hang out online
-6. How to reach first 100 customers
-7. Pricing expectations
-8. Why they would choose this over competitors
+Return ONLY valid JSON. No markdown, no explanation.
 
-Return concise markdown.
+Format exactly:
 
-Format:
-
-# ICP
-
-# Buyer Persona
-
-# Pain
-
-# Trigger Event
-
-# Acquisition Channels
-
-# First 100 Customers
-
-# Pricing
-
-# Competitive Advantage
+{{
+  "icp": "Ideal Customer Profile in 1-2 lines",
+  "buyer_persona": "short description",
+  "biggest_pain": "main pain point",
+  "trigger_event": "what makes them buy",
+  "where_they_hang_out": ["platforms/communities"],
+  "first_100_customers": ["steps to acquire"],
+  "pricing_expectation": "low/medium/high or range",
+  "competitive_advantage": "why users choose this"
+}}
 """
 
     response = ollama.chat(
         model=MODEL_NAME,
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
+        messages=[{"role": "user", "content": prompt}]
     )
 
-    return response["message"]["content"]
+    content = response["message"]["content"]
+
+    try:
+        return json.loads(content)
+    except:
+        return {
+            "icp": "",
+            "buyer_persona": "",
+            "biggest_pain": "",
+            "trigger_event": "",
+            "where_they_hang_out": [],
+            "first_100_customers": [],
+            "pricing_expectation": "unknown",
+            "competitive_advantage": "",
+            "raw": content
+        }
