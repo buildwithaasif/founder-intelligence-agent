@@ -1,1 +1,3 @@
 MODEL_NAME = "qwen3.6:latest"
+MAX_RETRIES = 2
+SEARCH_MAX_RESULTS = 5

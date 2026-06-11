@@ -1,44 +1,89 @@
 def generate_final_report(
-    recommendation,
-    opportunity_score,
-    customer_discovery,
-    founder_fit,
-):
-    return f"""
-=============================
-STARTUP INTELLIGENCE REPORT
-=============================
+    recommendation: dict,
+    opportunity_score: dict,
+    customer_discovery_data: dict,
+    founder_fit: dict,
+    interview_questions: str = "",
+) -> str:
+    # Safe getters with defaults
+    decision = recommendation.get("decision", "UNKNOWN")
+    overall = opportunity_score.get("overall_score", "N/A")
+    angle = recommendation.get("best_startup_angle", "N/A")
+    why = recommendation.get("why_this_wins", [])
+    mvp = recommendation.get("first_mvp", "N/A")
+    icp = customer_discovery_data.get("icp", "N/A")
+    pain = customer_discovery_data.get("biggest_pain", "N/A")
+    pricing = recommendation.get("pricing_strategy", "N/A")
+    fit_summary = founder_fit.get("summary", "N/A")
+    risk = recommendation.get("biggest_risk", "N/A")
+    next_steps = recommendation.get("next_30_days", [])
 
-DECISION: {recommendation["decision"]}
+    # Red flag fields
+    red_flags = recommendation.get("red_flags", [])
+    red_flag_analysis = recommendation.get("red_flag_analysis", "")
 
-OPPORTUNITY SCORE: {opportunity_score["overall_score"]}
+    # Format lists
+    why_str = "\n".join(f"- {w}" for w in why) if why else "- N/A"
+    steps_str = "\n".join(f"- {s}" for s in next_steps) if next_steps else "- N/A"
 
+    # Format red flags
+    if red_flags:
+        flags_str = "\n".join(f"🚩 {flag}" for flag in red_flags)
+    else:
+        flags_str = "✅ No red flags detected"
+
+    report = f"""
+=============================================
+       STARTUP INTELLIGENCE REPORT
+=============================================
+
+DECISION: {decision}
+
+OPPORTUNITY SCORE: {overall}/100
+
+=============================================
+              RED FLAG SCAN
+=============================================
+{flags_str}
+
+{red_flag_analysis}
+
+-------------------------------------------------
 BEST STARTUP ANGLE:
-{recommendation["best_startup_angle"]}
+{angle}
 
-WHY THIS WORKS:
-{recommendation["why_this_wins"]}
+WHY THIS WINS:
+{why_str}
 
 MVP:
-{recommendation["first_mvp"]}
+{mvp}
 
-TARGET USERS:
-{customer_discovery["icp"]}
+TARGET USERS (ICP):
+{icp}
 
 PAIN POINT:
-{customer_discovery["biggest_pain"]}
+{pain}
 
-PRICING:
-{recommendation["pricing_strategy"]}
+PRICING STRATEGY:
+{pricing}
 
 FOUNDER FIT:
-{founder_fit["summary"]}
+{fit_summary}
 
 BIGGEST RISK:
-{recommendation["biggest_risk"]}
+{risk}
 
 NEXT 30 DAYS:
-{recommendation["next_30_days"]}
+{steps_str}
+-------------------------------------------------
 
-=============================
+=============================================
+       CUSTOMER INTERVIEW QUESTIONS
+=============================================
+
+{interview_questions if interview_questions else "No interview questions generated."}
+
+=============================================
 """
+
+    return report

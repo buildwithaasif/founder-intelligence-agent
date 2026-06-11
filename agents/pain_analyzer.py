@@ -1,9 +1,13 @@
 import ollama
-from config import MODEL_NAME
+import json
+from config import MODEL_NAME, MAX_RETRIES
 
-def extract_pain_points(search_results: list) -> str:
+
+def extract_pain_points(search_results: list) -> dict:
+    if not search_results:
+        return {"pain_points": [], "problems": [], "market_gaps": []}
+
     context = ""
-
     for result in search_results:
         context += f"""
 Title: {result['title']}
@@ -18,47 +22,44 @@ Rules:
 1. Use only information present in the search results.
 2. Do not use your own knowledge.
 3. Do not make assumptions.
-4. If evidence is insufficient, say "Insufficient evidence".
+4. If evidence is insufficient, return empty arrays.
 
 Identify:
+- Customer pain points (frustrations, complaints, unmet needs)
+- Problems with existing solutions (what's broken about current options)
+- Market gaps (opportunities where no good solution exists)
 
-1. Customer pain points
-2. Problems with existing solutions
-3. Market gaps
-
-For every point, include the source title that supports it.
+Return ONLY valid JSON. No markdown, no explanation.
 
 Format:
-
-PAIN POINT:
-- description
-- source title
-
-PROBLEM:
-- description
-- source title
-
-MARKET GAP:
-- description
-- source title
+{{
+  "pain_points": ["pain point 1", "pain point 2"],
+  "problems": ["problem 1", "problem 2"],
+  "market_gaps": ["gap 1", "gap 2"]
+}}
 
 Search Results:
-
 {context}
 """
 
-    response = ollama.chat(
-        model=MODEL_NAME,
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
+    for attempt in range(MAX_RETRIES + 1):
+        try:
+            response = ollama.chat(
+                model=MODEL_NAME,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            content = response["message"]["content"].strip()
+            if content.startswith("```"):
+                content = content.split("\n", 1)[1]
+                if content.endswith("```"):
+                    content = content[:-3]
+            result = json.loads(content)
+            return {
+                "pain_points": result.get("pain_points", []),
+                "problems": result.get("problems", []),
+                "market_gaps": result.get("market_gaps", []),
             }
-        ]
-    )
-
-    return [
-    line.strip()
-    for line in response["message"]["content"].split("\n")
-    if line.strip()
-]
+        except Exception:
+            if attempt == MAX_RETRIES:
+                return {"pain_points": [], "problems": [], "market_gaps": []}
+    return {"pain_points": [], "problems": [], "market_gaps": []}
