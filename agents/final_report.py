@@ -22,6 +22,9 @@ def generate_final_report(
     red_flags = recommendation.get("red_flags", [])
     red_flag_analysis = recommendation.get("red_flag_analysis", "")
 
+    # YC Advice
+    yc_advice = recommendation.get("yc_advice", [])
+
     # Format lists
     why_str = "\n".join(f"- {w}" for w in why) if why else "- N/A"
     steps_str = "\n".join(f"- {s}" for s in next_steps) if next_steps else "- N/A"
@@ -31,6 +34,12 @@ def generate_final_report(
         flags_str = "\n".join(f"🚩 {flag}" for flag in red_flags)
     else:
         flags_str = "✅ No red flags detected"
+
+    # Format YC advice
+    if yc_advice:
+        advice_str = "\n".join(f"💬 *\"{advice}\"*" for advice in yc_advice)
+    else:
+        advice_str = "No specific advice generated."
 
     report = f"""
 =============================================
@@ -76,6 +85,12 @@ BIGGEST RISK:
 NEXT 30 DAYS:
 {steps_str}
 -------------------------------------------------
+
+=============================================
+       WHAT YC WOULD TELL YOU
+=============================================
+
+{advice_str}
 
 =============================================
        CUSTOMER INTERVIEW QUESTIONS
