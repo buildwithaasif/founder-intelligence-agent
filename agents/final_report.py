@@ -1,104 +1,202 @@
 def generate_final_report(
-    recommendation: dict,
-    opportunity_score: dict,
-    customer_discovery_data: dict,
-    founder_fit: dict,
+    startup_idea: str = "",
+    assumptions: dict = None,
+    evidence: dict = None,
+    validation: dict = None,
+    recommendation: dict = None,
+    opportunity_score: dict = None,
+    customer_discovery_data: dict = None,
+    founder_fit: dict = None,
     interview_questions: str = "",
 ) -> str:
-    # Safe getters with defaults
-    decision = recommendation.get("decision", "UNKNOWN")
-    overall = opportunity_score.get("overall_score", "N/A")
-    angle = recommendation.get("best_startup_angle", "N/A")
-    why = recommendation.get("why_this_wins", [])
-    mvp = recommendation.get("first_mvp", "N/A")
-    icp = customer_discovery_data.get("icp", "N/A")
-    pain = customer_discovery_data.get("biggest_pain", "N/A")
-    pricing = recommendation.get("pricing_strategy", "N/A")
-    fit_summary = founder_fit.get("summary", "N/A")
-    risk = recommendation.get("biggest_risk", "N/A")
-    next_steps = recommendation.get("next_30_days", [])
+    # Safe getters
+    rec = recommendation or {}
+    score = opportunity_score or {}
+    cust = customer_discovery_data or {}
+    fit = founder_fit or {}
 
-    # Red flag fields
-    red_flags = recommendation.get("red_flags", [])
-    red_flag_analysis = recommendation.get("red_flag_analysis", "")
+    decision = rec.get("decision", "UNKNOWN")
+    overall = score.get("overall_score", "N/A")
+    verdict_emoji = {"BUILD": "🟢", "PIVOT": "🟡", "ABANDON": "🔴", "MAYBE": "🟡"}.get(decision, "⚪")
 
-    # YC Advice
-    yc_advice = recommendation.get("yc_advice", [])
+    # ── Split assumptions by verdict ──
+    supported = []
+    rejected = []
+    partial = []
+    unclear = []
+    
+    if evidence:
+        for item in evidence.get("assumptions", []):
+            v = item.get("verdict", "UNCLEAR")
+            if v == "SUPPORTED":
+                supported.append(item.get("assumption", ""))
+            elif v == "REJECTED":
+                rejected.append(item.get("assumption", ""))
+            elif v == "PARTIALLY SUPPORTED":
+                partial.append(item.get("assumption", ""))
+            else:
+                unclear.append(item.get("assumption", ""))
 
-    # Format lists
-    why_str = "\n".join(f"- {w}" for w in why) if why else "- N/A"
-    steps_str = "\n".join(f"- {s}" for s in next_steps) if next_steps else "- N/A"
+    # ── Key insights ──
+    evidence_overall = evidence.get("overall", {}) if evidence else {}
+    blind_spot = evidence_overall.get("biggest_blind_spot", "")
+    most_validated = evidence_overall.get("most_validated", "")
+    revised = evidence_overall.get("revised_direction", "")
 
-    # Format red flags
-    if red_flags:
-        flags_str = "\n".join(f"🚩 {flag}" for flag in red_flags)
-    else:
-        flags_str = "✅ No red flags detected"
+    # ── Best action ──
+    angle = rec.get("best_startup_angle", "")
+    mvp = rec.get("first_mvp", "")
+    next_steps = rec.get("next_30_days", [])
+    risk = rec.get("biggest_risk", "")
+    pricing = rec.get("pricing_strategy", "")
 
-    # Format YC advice
-    if yc_advice:
-        advice_str = "\n".join(f"💬 *\"{advice}\"*" for advice in yc_advice)
-    else:
-        advice_str = "No specific advice generated."
+    # ── YC Advice (shortened) ──
+    yc_advice = rec.get("yc_advice", [])
+    top_advice = yc_advice[:3] if len(yc_advice) > 3 else yc_advice
 
+    # ── Validation summary ──
+    val_summary = validation.get("summary", {}) if validation else {}
+    first_task = val_summary.get("recommended_first_task", "")
+    est_time = val_summary.get("estimated_total_time", "")
+
+    # ── ICP ──
+    icp = cust.get("icp", "")
+    biggest_pain = cust.get("biggest_pain", "")
+
+    # ── Founder summary ──
+    fit_summary = fit.get("summary", "")
+    cofounder_rec = fit.get("co_founder_recommendation", "")
+    solo = fit.get("solo_viability", "")
+
+    # ── Build sections ──
+
+    # WHAT'S WRONG section
+    wrong_items = []
+    for r in rejected:
+        wrong_items.append(f"❌ {r[:120]}...")
+    for p in partial:
+        wrong_items.append(f"⚠️ {p[:120]}...")
+    for u in unclear:
+        wrong_items.append(f"❓ {u[:120]}...")
+    if not wrong_items:
+        wrong_items.append("✅ No critical issues found")
+    wrong_str = "\n".join(wrong_items)
+
+    # WHAT'S RIGHT section
+    right_items = []
+    for s in supported:
+        right_items.append(f"✅ {s[:120]}...")
+    if not right_items:
+        right_items.append("Nothing strongly validated yet — test your assumptions")
+    right_str = "\n".join(right_items)
+
+    # NEXT STEPS section
+    steps_str = ""
+    for i, step in enumerate(next_steps[:3], 1):
+        steps_str += f"\n  {i}. {step}"
+    if not steps_str:
+        steps_str = "\n  1. Talk to 10 potential customers before building anything"
+
+    # YC ADVICE section
+    advice_str = ""
+    for advice in top_advice:
+        short = advice[:150] + "..." if len(advice) > 150 else advice
+        advice_str += f"\n  💬 \"{short}\""
+
+    # INTERVIEW QUESTIONS — first question only
+    first_question = ""
+    if interview_questions:
+        lines = interview_questions.split("\n")
+        for line in lines:
+            stripped = line.strip()
+            if stripped and (stripped.startswith("1.") or stripped.startswith("1 ")):
+                first_question = stripped
+                break
+
+    # ── Build the report ──
     report = f"""
-=============================================
-       STARTUP INTELLIGENCE REPORT
-=============================================
+╔══════════════════════════════════════════════╗
+║        🚀 STARTUP INTELLIGENCE REPORT        ║
+║                                              ║
+║   {startup_idea[:45]}
+║                                              ║
+╚══════════════════════════════════════════════╝
 
-DECISION: {decision}
+  {verdict_emoji} VERDICT: {decision}   │   Score: {overall}/100
 
-OPPORTUNITY SCORE: {overall}/100
+  {revised[:180]}
 
-=============================================
-              RED FLAG SCAN
-=============================================
-{flags_str}
+────────────────────────────────────────────
+🔴 WHAT'S WRONG
+────────────────────────────────────────────
+{wrong_str}
 
-{red_flag_analysis}
+────────────────────────────────────────────
+🟢 WHAT'S RIGHT  
+────────────────────────────────────────────
+{right_str}
 
--------------------------------------------------
-BEST STARTUP ANGLE:
-{angle}
+────────────────────────────────────────────
+🎯 YOUR PIVOT
+────────────────────────────────────────────
+  {angle}
 
-WHY THIS WINS:
-{why_str}
+  First MVP: {mvp[:150]}
 
-MVP:
-{mvp}
+────────────────────────────────────────────
+📋 NEXT 7 DAYS
+────────────────────────────────────────────{steps_str}
 
-TARGET USERS (ICP):
-{icp}
+────────────────────────────────────────────
+⚠️ BIGGEST RISK
+────────────────────────────────────────────
+  {risk[:180]}
 
-PAIN POINT:
-{pain}
+────────────────────────────────────────────
+👤 FOUNDER REALITY CHECK
+────────────────────────────────────────────
+  {fit_summary[:200]}
 
-PRICING STRATEGY:
-{pricing}
+  Co-founder need: {cofounder_rec[:150]}
+  Solo viability: {solo}
 
-FOUNDER FIT:
-{fit_summary}
+────────────────────────────────────────────
+💡 WHAT YC WOULD SAY
+────────────────────────────────────────────{advice_str}
 
-BIGGEST RISK:
-{risk}
+────────────────────────────────────────────
+🎤 FIRST CUSTOMER QUESTION
+────────────────────────────────────────────
+  "{first_question}"
 
-NEXT 30 DAYS:
-{steps_str}
--------------------------------------------------
+  (Full 20-question interview script below)
 
-=============================================
-       WHAT YC WOULD TELL YOU
-=============================================
+────────────────────────────────────────────
+⏱️ VALIDATION PLAN
+────────────────────────────────────────────
+  Time needed: {est_time}
+  Start with: {first_task[:180]}
 
-{advice_str}
+────────────────────────────────────────────
+👥 IDEAL CUSTOMER
+────────────────────────────────────────────
+  {icp}
+  Core pain: {biggest_pain}
 
-=============================================
-       CUSTOMER INTERVIEW QUESTIONS
-=============================================
+────────────────────────────────────────────
+💰 PRICING MODEL
+────────────────────────────────────────────
+  {pricing}
+
+────────────────────────────────────────────
+📝 FULL INTERVIEW SCRIPT
+────────────────────────────────────────────
 
 {interview_questions if interview_questions else "No interview questions generated."}
 
-=============================================
+══════════════════════════════════════════════
+  Founder Intelligence Agent · v2
+══════════════════════════════════════════════
 """
 
     return report
