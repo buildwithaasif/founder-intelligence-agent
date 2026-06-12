@@ -1,33 +1,41 @@
-markdown
 # 🚀 Founder Intelligence Agent
 
-An AI-powered startup validation tool that uses **Y Combinator's proven methodologies** to analyze startup ideas, identify red flags, assess founder-fit, and generate actionable recommendations — all running locally with Ollama.
+An AI-powered startup validation tool that uses **Y Combinator's proven methodologies** to analyze startup ideas, extract hidden assumptions, test them against real evidence, and generate actionable recommendations — all running locally with Ollama.
+
+---
+
+## 🧠 The Pipeline
+Idea → Assumptions → Research → Validation Tasks → Evidence → Conclusion
+
+text
+
+| Step | What It Does |
+|------|-------------|
+| 🔍 **Assumptions** | Extracts 5-7 hidden beliefs behind your idea |
+| 🌐 **Research** | Searches the web for competitors, complaints, and market data |
+| 🏷️ **Competitor Intel** | Categorizes competitors as Direct, Indirect, Adjacent, or Potential threats |
+| 📊 **Pain Points** | Finds real customer complaints, problems, and market gaps |
+| ✅ **Validation Tasks** | Creates specific, actionable tests for each assumption with success/failure criteria |
+| 🧪 **Evidence Mapping** | Matches research findings against assumptions — what's true, what's false |
+| 👤 **Founder Gap Analysis** | Scores founder-fit and identifies missing skills + co-founder recommendations |
+| 📈 **Opportunity Score** | Weighted scoring where direct competitors hurt more than indirect ones |
+| 🚩 **Red Flag Scanner** | Detects YC anti-patterns: "Uber for X" clones, tarpit ideas, commodity markets |
+| 🎯 **Recommendation** | BUILD, PIVOT, or ABANDON with detailed reasoning |
+| 💡 **YC-Style Advice** | Direct, honest coaching in the voice of YC partners |
+| 🎤 **Interview Scripts** | 20 YC-style customer discovery questions + interviewer training tips |
 
 ---
 
 ## ✨ Features
 
-| Feature | Description |
-|---------|-------------|
-| 🔍 **Competitor Intelligence** | Searches the web and categorizes competitors as Direct, Indirect, Adjacent, or Potential threats |
-| 📊 **Pain Point Analysis** | Extracts real customer complaints, problems, and market gaps from web data |
-| 👤 **Founder Gap Analysis** | Scores founder-fit and identifies missing skills + co-founder recommendations |
-| 📈 **Smart Opportunity Scoring** | Weighted scoring where direct competitors hurt more than indirect ones |
-| 🚩 **YC Red Flag Scanner** | Detects anti-patterns: "Uber for X" clones, tarpit ideas, solutions looking for problems |
-| 🎯 **Strategic Recommendation** | BUILD, PIVOT, or ABANDON with detailed reasoning |
-| 🎤 **YC-Style Interview Scripts** | 20 customer discovery questions + interviewer training tips |
-| 📝 **Detailed Reports** | Clean markdown reports saved automatically |
-
----
-
-## 🧠 YC Methodology Built In
-
-- **Red Flag Detection:** Commodity markets, behavior change traps, market graveyards, fake urgency
-- **Founder-Market Fit:** Scores technical fit, domain expertise, execution speed, and market understanding
-- **Gap Analysis:** Identifies what skills are missing and what type of co-founder you need
-- **Customer Discovery:** "Interview 20 customers before building anything" framework
-- **Problem vs Solution Focus:** Questions designed to uncover real pain, not validate your idea
-- **Willingness to Pay:** Asks about actual past spending, not hypothetical future purchases
+- **Assumptions vs Evidence** — See which of your beliefs are supported, rejected, or unclear
+- **Validation Tasks** — Specific actions to test each assumption (with success/failure criteria)
+- **YC Red Flag Scanner** — Detects 8 known startup anti-patterns
+- **Founder Gap Analysis** — Identifies missing skills and recommends co-founder type
+- **Competitor Categorization** — Direct, Indirect, Adjacent, and Potential threats
+- **YC-Style Interview Scripts** — 20 questions + 5 interviewer training tips
+- **Smart Scoring** — Direct competitors hurt more than indirect ones
+- **Clean Reports** — Scannable, decision-first format
 
 ---
 
@@ -35,8 +43,8 @@ An AI-powered startup validation tool that uses **Y Combinator's proven methodol
 
 | Component | Technology |
 |-----------|------------|
-| LLM | Ollama with Qwen 3.6 |
-| Web Search | DuckDuckGo (ddgs) |
+| LLM | Ollama (Qwen 3.6 or any model) |
+| Web Search | DuckDuckGo |
 | Language | Python 3.11+ |
 | Terminal UI | Rich |
 | Reports | Markdown |
@@ -45,92 +53,85 @@ An AI-powered startup validation tool that uses **Y Combinator's proven methodol
 
 ## 📦 Installation
 
-### 1. Clone the Repository
+### 1. Clone
 
 ```bash
 git clone https://github.com/buildwithaasif/founder-intelligence-agent.git
 cd founder-intelligence-agent
-2. Set Up Virtual Environment
+2. Setup
 bash
 python -m venv .venv
 source .venv/bin/activate
-3. Install Dependencies
-bash
 pip install -r requirements.txt
-4. Install Ollama & Pull Model
+3. Install Ollama
 bash
-# Install Ollama from https://ollama.com
+# Install from https://ollama.com
 ollama pull qwen3.6:latest
-Make sure Ollama is running in the background before starting the application.
-
 🚀 Usage
 bash
 python main.py
-You'll see two options:
-
 Option	What It Does
-1. Analyze Existing Idea	Full pipeline: web search → competitor analysis → pain points → founder fit → red flags → recommendation → interview questions
-2. Generate Startup Ideas	Brainstorms 10 startup ideas based on your founder profile
-📊 Sample Output
+1. Analyze Idea	Full 11-step pipeline: Assumptions → Evidence → Recommendation
+2. Generate Ideas	Brainstorms 10 startup ideas based on your founder profile
+📊 Sample Report
 text
-=============================================
-       STARTUP INTELLIGENCE REPORT
-=============================================
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        🚀 STARTUP INTELLIGENCE REPORT
+        market research agent for founders
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-DECISION: PIVOT
+🟡 VERDICT: PIVOT   │   Score: 48/100
 
-OPPORTUNITY SCORE: 58/100
+────────────────────────────────────────────
+🔴 WHAT'S WRONG
+────────────────────────────────────────────
+❌ Founders won't pay monthly subscriptions
+⚠️ AI hallucination still a problem
 
-=============================================
-              RED FLAG SCAN
-=============================================
-🚩 Commodity market with low differentiation
-🚩 No clear customer acquisition path
-🚩 High operational cost risk
+────────────────────────────────────────────
+🟢 WHAT'S RIGHT
+────────────────────────────────────────────
+✅ Real pain: Research takes 10+ hrs/week
+✅ Existing tools too expensive ($40K+)
 
-The space is a red ocean of AI wrappers competing on price.
+────────────────────────────────────────────
+🎯 YOUR PIVOT
+────────────────────────────────────────────
+AI Security & Compliance Audit Agent
+→ Uses your OSCP/CPTS as unfair advantage
 
--------------------------------------------------
-BEST STARTUP ANGLE:
-AI-powered validation agent targeting pre-seed founders
-actively fundraising, leveraging security background as
-a defensible moat.
+────────────────────────────────────────────
+💡 WHAT YC WOULD SAY
+────────────────────────────────────────────
+💬 "Your OSCP is your superpower. Own the security niche."
+💬 "Do things that don't scale: hand-deliver audits to 10 founders."
 
-WHY THIS WINS:
-- Leverages founder's offensive security background
-- Targets high-intent, urgent workflow (fundraising)
-- Avoids head-on competition with data aggregators
-
-MVP:
-Single-page app where founders input a startup idea or
-competitor URL to get a 10-page automated report.
-
-FOUNDER FIT:
-Strong builder but lacks sales/GTM expertise.
-Co-Founder Recommendation: B2B SaaS sales co-founder
-
-NEXT 30 DAYS:
-- Interview 20 pre-seed founders
-- Build functional MVP in 24 hours
-- Publish 3 case studies to drive waitlist
+────────────────────────────────────────────
+⏱️ VALIDATION PLAN
+────────────────────────────────────────────
+Time needed: 2-3 weeks
+Start with: Concierge offer — deliver reports for $49
 📁 Project Structure
 text
 founder-intelligence-agent/
 │
-├── main.py                           # Orchestrator - runs the full pipeline
-├── config.py                         # Model name and settings
-├── requirements.txt                  # Python dependencies
+├── main.py                           # Orchestrator
+├── config.py                         # Model settings
+├── requirements.txt                  # Dependencies
 │
 ├── agents/
+│   ├── assumptions.py                # Extract hidden assumptions
 │   ├── analyzer.py                   # Competitor extraction & categorization
-│   ├── pain_analyzer.py              # Pain point & market gap discovery
+│   ├── pain_analyzer.py              # Pain point discovery
+│   ├── validation_tasks.py           # Generate tests for each assumption
+│   ├── evidence_mapper.py            # Match research to assumptions
 │   ├── founder_fit.py                # Founder gap analysis + co-founder rec
-│   ├── opportunity_score.py          # Smart weighted opportunity scoring
+│   ├── opportunity_score.py          # Smart weighted scoring
 │   ├── startup_recommendation.py     # Red flags + BUILD/PIVOT/ABANDON
-│   ├── customer_discovery.py         # ICP & buyer persona analysis
+│   ├── customer_discovery.py         # ICP & buyer persona
 │   ├── customer_interview_questions.py # YC-style interview scripts
-│   ├── final_report.py               # Final report formatting
-│   ├── founder_profile.py            # Founder background (customize this!)
+│   ├── final_report.py               # Report formatting
+│   ├── founder_profile.py            # Founder background
 │   └── idea_generator.py             # Startup idea brainstorming
 │
 ├── tools/
@@ -140,44 +141,23 @@ founder-intelligence-agent/
 │
 └── reports/                          # Saved analysis reports
 🧪 Testing
-Run individual component tests (no full pipeline needed):
-
 bash
-python test_analyzer.py              # Competitor categorization
-python test_founder_fit.py           # Founder gap analysis
-python test_opportunity_score.py     # Smart scoring logic
-python test_recommendation.py        # Red flag scanner
-python test_interview_questions.py   # YC interview scripts
-python test_final_report.py          # Report formatting
-python test_report_writer.py         # Markdown saving
+python test_assumptions.py            # Assumption extraction
+python test_analyzer.py               # Competitor categorization
+python test_evidence_mapper.py        # Evidence mapping
+python test_validation_tasks.py       # Validation task generation
+python test_founder_fit.py            # Founder gap analysis
+python test_opportunity_score.py      # Scoring logic
+python test_recommendation.py         # Red flags + recommendation
+python test_interview_questions.py    # YC interview scripts
+python test_final_report.py           # Report formatting
+python test_report_writer.py          # Markdown saving
 🔧 Customization
-Change the Founder Profile
-Edit agents/founder_profile.py with your own background:
+Change founder profile — Edit agents/founder_profile.py
+
+Change LLM model — Edit config.py:
 
 python
-def get_founder_profile() -> str:
-    return """
-    - Your skills here
-    - Your experience here
-    - Your interests here
-    """
-Change the LLM Model
-Edit config.py:
-
-python
-MODEL_NAME = "llama3:latest"  # or mistral, qwen, etc.
-🔮 Roadmap
-"What YC Would Tell You" coaching section
-
-Web UI with Streamlit or Gradio
-
-Interactive founder profile builder
-
-Multi-idea comparison mode
-
-PDF report export
-
-Integration with Crunchbase/ProductHunt APIs
-
+MODEL_NAME = "llama3:latest"
 📄 License
-MIT — feel free to use, modify, and share.
+MIT
