@@ -88,7 +88,9 @@ def analyze_idea():
 
     # ── Step 11: Interview Questions ──
     console.print("[bold]Step 11/11:[/] Generating YC-style interview questions...")
-    interview_qs = generate_interview_questions(startup_idea, customer_data)
+    # Use pivot idea for interview questions if original idea was rejected/pivoted
+    interview_idea = recommendation.get("best_startup_angle", startup_idea) if recommendation.get("decision") in ["PIVOT", "ABANDON"] else startup_idea
+    interview_qs = generate_interview_questions(interview_idea, customer_data)
     console.print(f"  [green]✓[/] Interview script ready")
 
     # ── Save raw report ──

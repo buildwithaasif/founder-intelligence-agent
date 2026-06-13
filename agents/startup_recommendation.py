@@ -17,6 +17,8 @@ def recommend_startup(
     else:
         comp_text = str(competitors)
 
+    score_value = opportunity_score.get("overall_score", 50)
+
     prompt = f"""
 You are an elite startup advisor using Y Combinator's proven evaluation methodology.
 
@@ -35,8 +37,7 @@ Pain Analysis:
 Founder Fit:
 {founder_fit}
 
-Opportunity Score:
-{opportunity_score}
+Opportunity Score: {score_value}/100
 
 ---
 
@@ -59,15 +60,22 @@ STEP 2: DECISION
 
 Based on the red flag scan and all data, decide: BUILD, PIVOT, or ABANDON.
 
-If PIVOT, suggest a specific direction change.
-If ABANDON, explain which red flags make this fatal.
+CRITICAL RULES:
+- Score below 50 → decision MUST be ABANDON (unless there is a VERY specific pivot that completely changes the market/approach)
+- Score 50-74 → decision can be BUILD or PIVOT
+- Score 75+ → decision should be BUILD
+- If you say PIVOT when the score is below 50, the pivot must be dramatic — not the same market, not the same approach. A real pivot.
+- If you say ABANDON, explain which red flags make this idea unfixable.
 
 ---
 
 STEP 3: STRATEGY
 
-If BUILD, provide detailed strategy.
-If PIVOT, provide new direction and first steps.
+If BUILD, provide detailed strategy for this specific idea.
+If PIVOT, provide 2 different pivot suggestions:
+  - Pivot A: Stay in the same market but different approach
+  - Pivot B: Use founder skills in a completely different market
+If ABANDON, explain why this idea cannot be saved and what type of idea the founder should pursue instead.
 
 ---
 
@@ -78,16 +86,10 @@ Write as if you're talking directly to the founder. Be blunt but helpful.
 
 Rules:
 - Each piece of advice should be 1-2 sentences
-- Reference specific data from the analysis (competitor count, founder gaps, red flags)
-- Include at least one piece of advice that is counterintuitive or surprising
-- Include at least one reference to a YC principle ("make something people want", "do things that don't scale", "talk to users", "launch fast")
-- If the idea has red flags, address them directly
-- If the founder has skill gaps, call them out honestly
+- Reference specific data from the analysis
+- Include at least one counterintuitive insight
+- Include at least one YC principle
 - End with one encouraging but realistic note
-
-Example style:
-"Your competitor count isn't the problem — it's proof this market has money in it. But you need to be 10x better, not 10% better. Right now your differentiation is weak."
-"You're a technical founder building a sales-heavy business. This almost never works solo. Find a co-founder who sells before you write another line of code."
 
 ---
 
@@ -95,17 +97,20 @@ Return ONLY valid JSON. No markdown, no explanation.
 
 Format:
 {{
-  "red_flags": ["flag 1 found", "flag 2 found"] or [] if none,
-  "red_flag_analysis": "1-2 sentence assessment of the red flags found",
+  "red_flags": ["flag 1", "flag 2"],
+  "red_flag_analysis": "1-2 sentence assessment",
   "decision": "BUILD or PIVOT or ABANDON",
-  "best_startup_angle": "clear idea direction or pivot suggestion",
+  "decision_reasoning": "Why this decision makes sense given the score and red flags",
+  "best_startup_angle": "primary direction or pivot suggestion",
+  "pivot_option_a": "Same market, different approach (only if PIVOT)",
+  "pivot_option_b": "Different market using founder skills (only if PIVOT)",
   "why_this_wins": ["reason1", "reason2"],
   "first_mvp": "simple MVP description",
   "ideal_customers": ["customer type 1"],
   "pricing_strategy": "pricing explanation",
   "biggest_risk": "main risk identified",
   "next_30_days": ["step1", "step2", "step3"],
-  "yc_advice": ["advice point 1", "advice point 2", "advice point 3", "advice point 4", "advice point 5", "advice point 6"]
+  "yc_advice": ["advice 1", "advice 2", "advice 3", "advice 4", "advice 5", "advice 6"]
 }}
 """
 
@@ -125,9 +130,12 @@ Format:
             if attempt == MAX_RETRIES:
                 return {
                     "red_flags": [],
-                    "red_flag_analysis": "Unable to complete red flag scan",
+                    "red_flag_analysis": "Unable to complete analysis",
                     "decision": "PIVOT",
+                    "decision_reasoning": "Insufficient data for clear decision",
                     "best_startup_angle": startup_idea,
+                    "pivot_option_a": "",
+                    "pivot_option_b": "",
                     "why_this_wins": ["Further analysis needed"],
                     "first_mvp": "Build a simple prototype",
                     "ideal_customers": ["Early adopters"],
